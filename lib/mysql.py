@@ -18,7 +18,6 @@ class MySQLConnection:
         except Exception as exc:
                 print("ERROR: %s" % exc)
         finally:
-            self.conn = conn
             return conn
 
     def close(self):
@@ -27,7 +26,7 @@ class MySQLConnection:
     def query(self, sql, conn=None, read_only=True, dict_cursor=True):
         result = None
         if not self.conn:
-            self.get_conn()
+            conn = self.get_conn()
         try:
             if dict_cursor:
                 cur = conn.cursor(cursorclass=mdb.cursors.DictCursor)
@@ -35,6 +34,8 @@ class MySQLConnection:
                 cur = conn.cursor()
             cur.execute(sql)
             result = cur.fetchall()
+            conn.close()
+            self.conn = None
         except Exception as exc:
             print("Error %s" % (exc))
         finally:

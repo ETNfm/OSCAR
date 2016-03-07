@@ -1,9 +1,10 @@
 #!/usr/bin/env python2.7
 from sys import exit
-from pprint import pprint
-from lib.mysql import MySQLConnection
 import configargparse
-
+from lib.mysql import MySQLConnection
+from lib.etn_show import build_show_list
+from lib.ftp import build_ftp_transfer_list
+from lib.utilities import LevenshteinDistance, matcher
 def parse_args():
     parser = configargparse.ArgParser(default_config_files=['oscar.conf',])
     parser.add('-c',
@@ -11,11 +12,16 @@ def parse_args():
                required=True,
                is_config_file=True,
                help='config file path')
-    parser.add('-d',
-               '--database',
+    parser.add('-b',
+               '--back-database',
                action='store',
-               dest='database',
-               help='MySQL database to use')
+               dest='back_database',
+               help='Back-end MySQL database to use')
+    parser.add('-d',
+               '--front-database',
+               action='store',
+               dest='front_database',
+               help='Front-end MySQL database to use')
     parser.add('-H',
                '--host',
                action='store',
@@ -36,18 +42,34 @@ def parse_args():
 
 def main():
     opts = parse_args()
-    mysql = MySQLConnection(opts.host,
-                            opts.user,
-                            opts.password,
-                            opts.database)
-    conn = mysql.get_conn()
-    sql = ("SELECT user_id, show_id, name, type, user_id, show_id, "
-           "display_name, day, time, frequency FROM shows JOIN shows_users ON "
-           "shows.id = shows_users.show_id JOIN users ON "
-           "shows_users.user_id = users.id")
-    results = mysql.query(sql, conn=conn)
-    pprint(results)
-    conn.close()
+    front_conn = MySQLConnection(opts.host,
+                                 opts.user,
+                                 opts.password,
+                                 opts.front_database)
+    back_conn = MySQLConnection(opts.host,
+                                opts.user,
+                                opts.password,
+                                opts.back_database)
+
+    show_list = build_show_list(front_conn)
+    ftp_list = build_ftp_transfer_list(back_conn)
+
+    for transfer in ftp_list:
+        ftp_file = ' '.join(transfer.filename.split('/')[3:])
+        highest = 0
+        match = None
+        for show in show_list:
+            num_sets = matcher(show.display_name, ftp_file)
+            num_sets += matcher(show.name, ftp_file)
+            if num_sets >= highest:
+                highest = num_sets
+                match = show
+        print("-----------------------------------------------------")
+        print("FTP File: %s" % ftp_file)
+        print("Artist: %s" % match.display_name)
+        print("Show Name: %s" % match.name)
+        print("Total Matches: %d" % highest)
+        print("-----------------------------------------------------\n")
     return True
 
 
