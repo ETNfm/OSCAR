@@ -40,6 +40,9 @@ def parse_args():
     opts = parser.parse_args()
     return opts
 
+def build_directory_list(path):
+    pass
+
 def main():
     opts = parse_args()
     front_conn = MySQLConnection(opts.host,
@@ -53,6 +56,7 @@ def main():
 
     show_list = build_show_list(front_conn)
     ftp_list = build_ftp_transfer_list(back_conn)
+    directory_list = build_directory_list('/data/guest')
 
     for transfer in ftp_list:
         ftp_file = ' '.join(transfer.filename.split('/')[3:])
