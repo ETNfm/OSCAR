@@ -5,6 +5,7 @@ from lib.mysql import MySQLConnection
 from lib.etn_show import build_show_list
 from lib.ftp import build_ftp_transfer_list
 from lib.utilities import LevenshteinDistance, matcher
+
 def parse_args():
     parser = configargparse.ArgParser(default_config_files=['oscar.conf',])
     parser.add('-c',
@@ -56,7 +57,7 @@ def main():
 
     show_list = build_show_list(front_conn)
     ftp_list = build_ftp_transfer_list(back_conn)
-    directory_list = build_directory_list('/data/guest')
+    directory_list = build_directory_list(opts.data_dir)
 
     for transfer in ftp_list:
         ftp_file = ' '.join(transfer.filename.split('/')[3:])
