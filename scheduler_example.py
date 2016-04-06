@@ -2,7 +2,7 @@
 from sys import exit
 import configargparse
 from lib.mysql import MySQLConnection
-from lib.etn_show import build_show_list
+from lib.show import build_show_list
 from lib.ftp import build_ftp_transfer_list
 from lib.utilities import LevenshteinDistance, matcher
 
