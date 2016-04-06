@@ -2,8 +2,8 @@ CREATE DATABASE IF NOT EXISTS `oscar`;
 USE oscar;
 
 CREATE TABLE `shows` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) unsigned NOT NULL,
+  `id` int(32) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(32) unsigned NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` varchar(255) NOT NULL,
   `channel` int(10) unsigned NOT NULL,
