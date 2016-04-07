@@ -60,5 +60,4 @@ target/
 
 # CONFIG FILE
 oscar.conf
-
-# Created by .ignore support plugin (hsz.mobi)
+conf/
